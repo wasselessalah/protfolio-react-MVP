@@ -6,12 +6,23 @@ import Contact from "@/components/sections/Contact";
 
 export default function HomePage() {
   return (
-    <> 
-      <Hero />
-      <About />
-      <Skills />
-      <Projects />
-      <Contact />
+    <>
+      <div id="hero">
+        <Hero />
+      </div>
+
+      <div id="about">
+        <About />
+        <Skills />
+      </div>
+
+      <div id="projects">
+        <Projects />
+      </div>
+
+      <div id="contact">
+        <Contact />
+      </div>
     </>
   );
 }

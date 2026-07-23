@@ -126,7 +126,7 @@ const { theme } = useTheme();
               <div className="absolute -inset-4 rounded-full border border-primary/20" />
 
               {/* Avatar */}
-              <div className="relative h-80 w-80 overflow-hidden rounded-full border-4 border-background shadow-2xl lg:h-[420px] lg:w-[420px]">
+              <div className="relative  w-80 overflow-hidden rounded-full border-4 border-background shadow-2xl  lg:w-[420px]">
                 <img
                   src={personal.avatar}
                   alt={personal.name}
