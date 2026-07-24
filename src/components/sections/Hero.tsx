@@ -1,12 +1,14 @@
 // src/components/sections/Hero.tsx
 
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import { FaGithub, FaLinkedin, FaTwitter } from "react-icons/fa";
-import { information } from "@/data/information";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/context/ThemeContext";
+import { useHero } from "@/hooks/useHero";
+import { useAbout } from "@/hooks/useAbout";
+import { useSocials } from "@/hooks/useSocials";
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -14,7 +16,7 @@ const containerVariants = {
   },
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 24 },
   visible: {
     opacity: 1,
@@ -24,9 +26,44 @@ const itemVariants = {
 };
 
 export default function Hero() {
-  const { personal } = information;
   const { theme } = useTheme();
   const isDark = theme === "dark";
+
+  const { data: heroData, isLoading: isHeroLoading } = useHero();
+  const { data: aboutData } = useAbout();
+  const { data: socialsData = [] } = useSocials();
+
+  if (isHeroLoading) {
+    return (
+      <section className={cn("min-h-screen pt-20 flex items-center justify-center", isDark ? "bg-zinc-950" : "bg-white")}>
+        <div className="container-premium mx-auto grid w-full items-center gap-12 lg:grid-cols-2">
+          <div className="order-2 lg:order-1 space-y-6">
+            <div className="h-8 w-48 bg-zinc-800/50 rounded-full animate-pulse" />
+            <div className="h-20 w-3/4 bg-zinc-800/50 rounded-xl animate-pulse" />
+            <div className="h-10 w-1/2 bg-zinc-800/50 rounded-lg animate-pulse" />
+            <div className="h-24 w-full bg-zinc-800/50 rounded-lg animate-pulse" />
+            <div className="flex gap-4 pt-4">
+              <div className="h-12 w-32 bg-zinc-800/50 rounded-xl animate-pulse" />
+              <div className="h-12 w-32 bg-zinc-800/50 rounded-xl animate-pulse" />
+            </div>
+          </div>
+          <div className="order-1 lg:order-2 flex justify-center">
+            <div className="h-[280px] w-[280px] lg:h-[380px] lg:w-[380px] rounded-full bg-zinc-800/50 animate-pulse" />
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  const name = heroData?.name || aboutData?.name || "Wassel Essalah";
+  const title = heroData?.titles?.[0] || aboutData?.title || "Full Stack Developer";
+  const subtitle = heroData?.description || aboutData?.subtitle || "Passionate about building impactful products.";
+  const avatar = aboutData?.avatar || "https://placehold.co/400x400";
+  
+  const ctaPrimary = heroData?.ctaPrimary || "View Projects";
+  const ctaPrimaryUrl = heroData?.ctaPrimaryUrl || "#projects";
+  const ctaSecondary = heroData?.ctaSecondary || "Contact Me";
+  const ctaSecondaryUrl = heroData?.ctaSecondaryUrl || "#contact";
 
   return (
     <section
@@ -86,44 +123,44 @@ export default function Hero() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
                 </span>
-                Available for freelance work
+                {aboutData?.availability === "Available" ? "Available for freelance work" : (aboutData?.availability || "Available")}
               </span>
             </motion.div>
 
             {/* Main Heading */}
             <motion.h1 variants={itemVariants} className="mt-8 text-display-xl">
-              Hi, I'm{" "}
+              {heroData?.greeting || "Hi, I'm"}{" "}
               <span className="gradient-text">
-                {personal.name}
+                {name}
               </span>
             </motion.h1>
 
             {/* Role Subtitle */}
             <motion.p variants={itemVariants} className="mt-5 text-heading-lg text-zinc-500 dark:text-zinc-400">
-              {personal.title}
+              {title}
             </motion.p>
 
             {/* Description */}
             <motion.p variants={itemVariants} className="mt-6 max-w-xl text-body-base text-zinc-600 dark:text-zinc-400">
-              {personal.subtitle}
+              {subtitle}
             </motion.p>
 
             {/* CTA Buttons */}
             <motion.div variants={itemVariants} className="mt-10 flex flex-wrap gap-4">
               <a
-                href="#projects"
+                href={ctaPrimaryUrl}
                 className={cn(
                   "group inline-flex items-center gap-2 rounded-xl bg-zinc-900 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-zinc-900/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl dark:bg-white dark:text-zinc-900 dark:shadow-zinc-900/40",
                   "focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
                 )}
               >
-                View Projects
+                {ctaPrimary}
                 <svg className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
               </a>
               <a
-                href="#contact"
+                href={ctaSecondaryUrl}
                 className={cn(
                   "group inline-flex items-center gap-2 rounded-xl border px-7 py-3.5 text-sm font-semibold transition-all duration-300 hover:-translate-y-0.5",
                   isDark
@@ -131,33 +168,34 @@ export default function Hero() {
                     : "border-zinc-300 bg-white/60 text-zinc-700 hover:bg-white hover:shadow-md"
                 )}
               >
-                Contact Me
+                {ctaSecondary}
               </a>
             </motion.div>
 
             {/* Social Links */}
             <motion.div variants={itemVariants} className="mt-10 flex items-center gap-3">
-              {[
-                { href: personal.social.github, icon: <FaGithub size={20} />, label: "GitHub" },
-                { href: personal.social.linkedin, icon: <FaLinkedin size={20} />, label: "LinkedIn" },
-                { href: personal.social.twitter, icon: <FaTwitter size={20} />, label: "Twitter" },
-              ].map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={social.label}
-                  className={cn(
-                    "flex h-11 w-11 items-center justify-center rounded-xl border transition-all duration-300 hover:-translate-y-1",
-                    isDark
-                      ? "border-zinc-800 bg-zinc-900/40 text-zinc-400 hover:border-zinc-700 hover:text-white"
-                      : "border-zinc-200 bg-white/60 text-zinc-500 hover:border-zinc-300 hover:text-zinc-900 hover:shadow-sm"
-                  )}
-                >
-                  {social.icon}
-                </a>
-              ))}
+              {socialsData.filter(s => s.visible).map((social) => {
+                let Icon = FaLinkedin;
+                if (social.platform.toLowerCase() === 'github') Icon = FaGithub;
+                if (social.platform.toLowerCase() === 'twitter') Icon = FaTwitter;
+                return (
+                  <a
+                    key={social._id}
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={social.platform}
+                    className={cn(
+                      "flex h-11 w-11 items-center justify-center rounded-xl border transition-all duration-300 hover:-translate-y-1",
+                      isDark
+                        ? "border-zinc-800 bg-zinc-900/40 text-zinc-400 hover:border-zinc-700 hover:text-white"
+                        : "border-zinc-200 bg-white/60 text-zinc-500 hover:border-zinc-300 hover:text-zinc-900 hover:shadow-sm"
+                    )}
+                  >
+                    <Icon size={20} />
+                  </a>
+                );
+              })}
             </motion.div>
           </div>
 
@@ -187,8 +225,8 @@ export default function Hero() {
                   : "border-white shadow-zinc-300/50"
               )}>
                 <img
-                  src={personal.avatar}
-                  alt={personal.name}
+                  src={avatar}
+                  alt={name}
                   className="h-full w-full object-cover"
                   loading="eager"
                 />

@@ -5,14 +5,9 @@ import {
   FiGithub, FiLinkedin, FiTwitter, FiDownload,
   FiMail, FiMapPin, FiCheck, FiCode, FiStar, FiGitBranch
 } from "react-icons/fi";
-import { information } from "@/data/information";
-
-const roles = [
-  "Full Stack Developer",
-  "React Specialist",
-  "Node.js Engineer",
-  "Cloud Engineering Student",
-];
+import { useAbout } from "@/hooks/useAbout";
+import { useHero } from "@/hooks/useHero";
+import { useSocials } from "@/hooks/useSocials";
 
 const floatingCodeSnippet = `const developer = {
   name: "Wassel Essalah",
@@ -22,24 +17,38 @@ const floatingCodeSnippet = `const developer = {
   alwaysLearning: true
 }`;
 
-const statsData = [
-  { label: "Projects", value: "15+", color: "#3B82F6" },
-  { label: "Experience", value: "2+ yrs", color: "#8B5CF6" },
-  { label: "Technologies", value: "20+", color: "#06B6D4" },
-  { label: "GitHub Stars", value: "50+", color: "#22C55E" },
-];
-
 const techBadges = ["React", "Next.js", "TypeScript", "Node.js", "MongoDB", "Docker", "AWS", "PostgreSQL"];
 
 export default function Hero() {
   const [roleIndex, setRoleIndex] = useState(0);
   const [displayed, setDisplayed] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
-  const { personal } = information;
+
+  const { data: heroData } = useHero();
+  const { data: aboutData } = useAbout();
+  const { data: socialsData = [] } = useSocials();
+
+  const name = heroData?.name || aboutData?.name || "Wassel Essalah";
+  const roles = heroData?.titles?.length ? heroData.titles : ["Full Stack Developer", "React Specialist", "Node.js Engineer", "Cloud Engineering Student"];
+  const avatar = aboutData?.avatar || "https://placehold.co/400x400";
+  const location = aboutData?.location || "Sousse, Tunisia";
+  const subtitle = heroData?.description || aboutData?.subtitle || "Passionate about building impactful products.";
+  const projectsCount = aboutData?.totalProjects || "15+";
+  const experience = aboutData?.yearsOfExperience || "2+ yrs";
+  const technologies = aboutData?.technologies?.length ? `${aboutData.technologies.length}+` : "20+";
+
+  const statsData = [
+    { label: "Projects", value: projectsCount, color: "#3B82F6" },
+    { label: "Experience", value: experience, color: "#8B5CF6" },
+    { label: "Technologies", value: technologies, color: "#06B6D4" },
+    { label: "GitHub Stars", value: "50+", color: "#22C55E" },
+  ];
 
   // Typewriter effect
   useEffect(() => {
-    const current = roles[roleIndex];
+    if (!roles || roles.length === 0) return;
+    
+    const current = roles[roleIndex] || "";
     let timeout: ReturnType<typeof setTimeout>;
 
     if (!isDeleting && displayed.length < current.length) {
@@ -54,7 +63,7 @@ export default function Hero() {
     }
 
     return () => clearTimeout(timeout);
-  }, [displayed, isDeleting, roleIndex]);
+  }, [displayed, isDeleting, roleIndex, roles]);
 
   return (
     <section className="relative min-h-screen">
@@ -114,8 +123,8 @@ export default function Hero() {
             >
               <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-2xl overflow-hidden ring-4 ring-[#050816] shadow-2xl neon-blue">
                 <img
-                  src={personal.avatar}
-                  alt={personal.name}
+                  src={avatar}
+                  alt={name}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -131,26 +140,29 @@ export default function Hero() {
               className="flex flex-wrap gap-3"
             >
               <a
-                href="mailto:wasselessalah@gmail.com"
+                href={aboutData?.email ? `mailto:${aboutData.email}` : "mailto:wasselessalah@gmail.com"}
                 className="btn-primary flex items-center gap-2 px-5 py-2.5 text-sm"
               >
                 <FiMail size={15} /> Hire Me
               </a>
               <a
-                href="/resume.pdf"
-                download
-                className="btn-ghost flex items-center gap-2 px-5 py-2.5 text-sm"
-              >
-                <FiDownload size={15} /> Resume
-              </a>
-              <a
-                href={personal.social.github}
+                href={aboutData?.resumeUrl || "/resume.pdf"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-ghost flex items-center gap-2 px-5 py-2.5 text-sm"
               >
-                <FiGithub size={15} /> GitHub
+                <FiDownload size={15} /> Resume
               </a>
+              {socialsData.find(s => s.platform.toLowerCase() === 'github') && (
+                <a
+                  href={socialsData.find(s => s.platform.toLowerCase() === 'github')?.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-ghost flex items-center gap-2 px-5 py-2.5 text-sm"
+                >
+                  <FiGithub size={15} /> GitHub
+                </a>
+              )}
             </motion.div>
           </div>
 
@@ -163,7 +175,7 @@ export default function Hero() {
             {/* Name + Verification */}
             <div className="flex flex-wrap items-center gap-3 mb-2">
               <h1 className="text-3xl sm:text-4xl font-900 text-white tracking-tight">
-                {personal.name}
+                {name}
               </h1>
               <span className="flex items-center gap-1.5 bg-[rgba(59,130,246,0.15)] text-[#3B82F6] text-xs font-700 px-2.5 py-1 rounded-full border border-[rgba(59,130,246,0.3)]">
                 <FiCheck size={11} className="fill-current" /> Verified Dev
@@ -179,37 +191,38 @@ export default function Hero() {
             {/* Location + Status */}
             <div className="flex flex-wrap items-center gap-4 text-sm text-[#64748B] mb-4">
               <span className="flex items-center gap-1.5">
-                <FiMapPin size={13} /> {personal.location}
+                <FiMapPin size={13} /> {location}
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse" />
-                Open for Internship &amp; Freelance
+                {aboutData?.availability === "Available" ? "Open for Internship & Freelance" : (aboutData?.availability || "Available")}
               </span>
             </div>
 
             {/* Bio */}
             <p className="text-[#94A3B8] text-sm leading-relaxed max-w-2xl mb-6">
-              {personal.subtitle}
+              {subtitle}
             </p>
 
             {/* Social links row */}
             <div className="flex items-center gap-2 mb-8">
-              {[
-                { href: personal.social.github, icon: FiGithub, label: "GitHub" },
-                { href: personal.social.linkedin, icon: FiLinkedin, label: "LinkedIn" },
-                { href: personal.social.twitter, icon: FiTwitter, label: "Twitter" },
-              ].map(({ href, icon: Icon, label }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  className="w-9 h-9 rounded-xl flex items-center justify-center text-[#475569] hover:text-[#3B82F6] hover:bg-[rgba(59,130,246,0.1)] border border-[rgba(59,130,246,0.1)] hover:border-[rgba(59,130,246,0.3)] transition-all duration-200"
-                >
-                  <Icon size={17} />
-                </a>
-              ))}
+              {socialsData.filter(s => s.visible).map((social) => {
+                let Icon = FiLinkedin;
+                if (social.platform.toLowerCase() === 'github') Icon = FiGithub;
+                if (social.platform.toLowerCase() === 'twitter') Icon = FiTwitter;
+                return (
+                  <a
+                    key={social._id}
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={social.platform}
+                    className="w-9 h-9 rounded-xl flex items-center justify-center text-[#475569] hover:text-[#3B82F6] hover:bg-[rgba(59,130,246,0.1)] border border-[rgba(59,130,246,0.1)] hover:border-[rgba(59,130,246,0.3)] transition-all duration-200"
+                  >
+                    <Icon size={17} />
+                  </a>
+                );
+              })}
             </div>
           </motion.div>
 
@@ -255,7 +268,7 @@ export default function Hero() {
                   {floatingCodeSnippet.split("\n").map((line, i) => (
                     <span key={i} className="block">
                       {line.includes("name") ? (
-                        <><span className="text-[#64748B]">{line.split('"')[0]}"</span><span className="text-[#22C55E]">Wassel Essalah</span><span className="text-[#64748B]">",</span></>
+                        <><span className="text-[#64748B]">{line.split('"')[0]}"</span><span className="text-[#22C55E]">{name}</span><span className="text-[#64748B]">",</span></>
                       ) : line.includes("true") ? (
                         <><span className="text-[#94A3B8]">{line.split("true")[0]}</span><span className="text-[#F59E0B]">true</span></>
                       ) : line.includes(":") && !line.includes("{") ? (
@@ -285,7 +298,7 @@ export default function Hero() {
                   </div>
                   <div>
                     <p className="text-sm font-700 text-white">GitHub Activity</p>
-                    <p className="text-xs text-[#64748B]">@wasselessalah</p>
+                    <p className="text-xs text-[#64748B]">{socialsData.find(s => s.platform.toLowerCase() === 'github') ? `@${socialsData.find(s => s.platform.toLowerCase() === 'github')?.url.split('/').pop()}` : 'GitHub Activity'}</p>
                   </div>
                 </div>
                 {/* Mini contribution graph */}

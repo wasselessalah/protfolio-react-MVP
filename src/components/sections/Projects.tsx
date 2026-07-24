@@ -4,10 +4,13 @@ import { motion } from "framer-motion";
 import { FiGithub, FiExternalLink, FiEye, FiHeart, FiMessageCircle,
          FiShare2, FiClock, FiStar, FiArrowRight } from "react-icons/fi";
 import { NavLink } from "react-router-dom";
-import { projects } from "@/data/projects";
-import type { Project } from "@/data/projects";
+import { useProjects } from "@/hooks/useProjects";
+import { useAbout } from "@/hooks/useAbout";
+import type { Project } from "@/types/Project";
+import { useTheme } from "@/context/ThemeContext";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import ProjectDetailSheet from "@/components/shared/project-card/ProjectDetailSheet";
+
 
 const STATUS_STYLES: Record<string, { label: string; color: string; bg: string }> = {
   Completed:   { label: "Completed",   color: "#22C55E", bg: "rgba(34,197,94,0.12)" },
@@ -21,15 +24,18 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 // Seeded interaction numbers (deterministic per project)
-function seed(id: number, base: number) { return base + id * 37 + 14; }
+function seed(id: string, base: number) { 
+  const numId = parseInt(id.slice(0, 8), 16) || 0;
+  return base + (numId % 100) * 3 + 14; 
+}
 
 interface Props { limit?: number; }
 
-function ProjectPostCard({ project }: { project: Project }) {
+function ProjectPostCard({ project, authorName, authorAvatar, isDark }: { project: Project, authorName: string, authorAvatar: string, isDark: boolean }) {
   const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(seed(project.id, 42));
-  const views = seed(project.id, 180);
-  const comments = seed(project.id, 8);
+  const [likeCount, setLikeCount] = useState(seed(project._id, 42));
+  const views = seed(project._id, 180);
+  const comments = seed(project._id, 8);
   const status = STATUS_STYLES[project.status] ?? STATUS_STYLES.Completed;
   const categoryColor = CATEGORY_COLORS[project.category] ?? "#3B82F6";
 
@@ -53,10 +59,10 @@ function ProjectPostCard({ project }: { project: Project }) {
         <div className="flex items-center justify-between px-5 pt-5 pb-3">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl overflow-hidden ring-1 ring-[rgba(59,130,246,0.2)]">
-              <img src="/src/assets/images/profile/avatar.png" alt="Wassel" className="w-full h-full object-cover" />
+              <img src={authorAvatar || "https://placehold.co/100x100"} alt={authorName} className="w-full h-full object-cover" />
             </div>
             <div>
-              <p className="text-sm font-700 text-white leading-none">Wassel Essalah</p>
+              <p className="text-sm font-700 text-white leading-none">{authorName}</p>
               <p className="text-xs text-[#64748B] mt-0.5">{project.year} · {project.duration}</p>
             </div>
           </div>
@@ -79,13 +85,15 @@ function ProjectPostCard({ project }: { project: Project }) {
         {/* Thumbnail */}
         <SheetTrigger asChild>
           <div className="relative mx-5 mb-4 rounded-xl overflow-hidden cursor-pointer">
-            <div className="aspect-video">
-              <img
-                src={project.thumbnail}
-                alt={project.title}
-                loading="lazy"
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-              />
+            <div className="aspect-video bg-[#1E293B]">
+              {project.thumbnail && (
+                <img
+                  src={project.thumbnail}
+                  alt={project.title}
+                  loading="lazy"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                />
+              )}
             </div>
             {/* Gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
@@ -114,10 +122,10 @@ function ProjectPostCard({ project }: { project: Project }) {
 
           {/* Tech stack */}
           <div className="flex flex-wrap gap-1.5 mb-4">
-            {project.technologies.slice(0, 5).map((tech) => (
+            {project.technologies?.slice(0, 5).map((tech) => (
               <span key={tech} className="tech-chip">{tech}</span>
             ))}
-            {project.technologies.length > 5 && (
+            {project.technologies && project.technologies.length > 5 && (
               <span className="tech-chip text-[#3B82F6]">+{project.technologies.length - 5}</span>
             )}
           </div>
@@ -162,11 +170,11 @@ function ProjectPostCard({ project }: { project: Project }) {
           </div>
 
           {/* Links */}
-          {(hasLink(project.links.github) || hasLink(project.links.live)) && (
+          {(hasLink(project.githubUrl) || hasLink(project.liveUrl)) && (
             <div className="flex gap-2 pb-4 pt-1">
-              {hasLink(project.links.github) && (
+              {hasLink(project.githubUrl) && (
                 <a
-                  href={project.links.github}
+                  href={project.githubUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
@@ -175,9 +183,9 @@ function ProjectPostCard({ project }: { project: Project }) {
                   <FiGithub size={13} /> Source Code
                 </a>
               )}
-              {hasLink(project.links.live) && (
+              {hasLink(project.liveUrl) && (
                 <a
-                  href={project.links.live}
+                  href={project.liveUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
@@ -191,14 +199,38 @@ function ProjectPostCard({ project }: { project: Project }) {
         </div>
       </motion.article>
 
-      <ProjectDetailSheet project={project} isDark={true} />
+      <ProjectDetailSheet project={project} isDark={isDark} />
     </Sheet>
   );
 }
 
 export default function Projects({ limit }: Props) {
+  const { data: projects = [], isLoading } = useProjects();
+  const { data: aboutData } = useAbout();
+  const { theme } = useTheme();
+  
   const displayedProjects = limit ? projects.slice(0, limit) : projects;
   const isHomePage = Boolean(limit);
+  const isDark = theme === 'dark';
+
+  if (isLoading) {
+    return (
+      <section className="section-wrapper px-6 lg:px-10">
+        <div className="max-w-5xl mx-auto">
+          <div className="mb-10">
+            <div className="w-24 h-4 bg-zinc-800 rounded animate-pulse mb-3" />
+            <div className="w-64 h-8 bg-zinc-800 rounded animate-pulse mb-3" />
+            <div className="w-96 h-4 bg-zinc-800 rounded animate-pulse" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="post-card p-5 h-96 bg-zinc-900/50 animate-pulse rounded-2xl" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="section-wrapper px-6 lg:px-10">
@@ -227,7 +259,13 @@ export default function Projects({ limit }: Props) {
         {/* Project feed */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {displayedProjects.map((project) => (
-            <ProjectPostCard key={project.id} project={project} />
+            <ProjectPostCard 
+              key={project._id} 
+              project={project} 
+              authorName={aboutData?.name || "Wassel Essalah"}
+              authorAvatar={aboutData?.avatar || ""}
+              isDark={isDark}
+            />
           ))}
         </div>
 

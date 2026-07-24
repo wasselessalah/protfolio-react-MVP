@@ -1,9 +1,9 @@
 // src/components/sections/Skills.tsx
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiZap } from "react-icons/fi";
-import { skillCategories } from "@/data/skills";
-import type { Skill } from "@/data/skills";
+import { useSkills } from "@/hooks/useSkills";
+import type { Skill } from "@/types/Skill";
 
 const LEVEL_COLORS: Record<string, string> = {
   Beginner: "#64748B",
@@ -42,7 +42,7 @@ function ProgressRing({ percentage, color }: { percentage: number; color: string
 
 function SkillCard({ skill }: { skill: Skill }) {
   const [hovered, setHovered] = useState(false);
-  const levelColor = LEVEL_COLORS[skill.level];
+  const levelColor = LEVEL_COLORS[skill.level] || "#3B82F6";
 
   return (
     <motion.div
@@ -91,8 +91,36 @@ function SkillCard({ skill }: { skill: Skill }) {
 }
 
 export default function Skills() {
-  const [activeCategory, setActiveCategory] = useState("frontend");
-  const active = skillCategories.find((c) => c.id === activeCategory)!;
+  const { data: skillsData = [], isLoading } = useSkills();
+  const [activeCategoryId, setActiveCategoryId] = useState<string>("");
+
+  const skillCategories = useMemo(() => {
+    const cats: Record<string, { id: string, category: string, icon: string, color: string, skills: Skill[] }> = {};
+    skillsData.forEach(skill => {
+      const cid = skill.categoryId;
+      if (!cats[cid]) {
+        cats[cid] = {
+          id: cid,
+          category: `Category ${cid.slice(-4)}`, // Placeholder until you fetch categories
+          icon: "🚀",
+          color: "#3B82F6",
+          skills: []
+        };
+      }
+      cats[cid].skills.push(skill);
+    });
+    return Object.values(cats);
+  }, [skillsData]);
+
+  if (isLoading) {
+    return <div className="text-center py-20 text-[#64748B]">Loading skills...</div>;
+  }
+
+  const activeCategory = activeCategoryId 
+    ? activeCategoryId 
+    : skillCategories.length > 0 ? skillCategories[0].id : "";
+
+  const active = skillCategories.find((c) => c.id === activeCategory);
 
   return (
     <section className="section-wrapper px-6 lg:px-10">
@@ -109,115 +137,125 @@ export default function Skills() {
           </p>
         </motion.div>
 
-        {/* Category tabs */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="flex flex-wrap gap-2 mb-8"
-        >
-          {skillCategories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-600 transition-all duration-200 ${
-                activeCategory === cat.id
-                  ? "text-white"
-                  : "text-[#64748B] hover:text-[#94A3B8] bg-[rgba(255,255,255,0.02)] hover:bg-[rgba(255,255,255,0.04)] border border-[rgba(59,130,246,0.08)]"
-              }`}
-              style={
-                activeCategory === cat.id
-                  ? { background: `${cat.color}20`, border: `1px solid ${cat.color}40`, color: cat.color }
-                  : {}
-              }
+        {skillCategories.length === 0 ? (
+          <div className="text-center text-[#64748B]">No skills found.</div>
+        ) : (
+          <>
+            {/* Category tabs */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="flex flex-wrap gap-2 mb-8"
             >
-              <span>{cat.icon}</span>
-              {cat.category}
-              <span
-                className="text-[10px] font-700 px-1.5 py-0.5 rounded-full"
-                style={
-                  activeCategory === cat.id
-                    ? { background: `${cat.color}30`, color: cat.color }
-                    : { background: "rgba(59,130,246,0.08)", color: "#475569" }
-                }
-              >
-                {cat.skills.length}
-              </span>
-            </button>
-          ))}
-        </motion.div>
-
-        {/* Category summary */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="glass-card p-4 mb-6 flex items-center gap-4"
-        >
-          <span className="text-3xl">{active.icon}</span>
-          <div>
-            <p className="text-base font-700 text-white">{active.category}</p>
-            <p className="text-sm text-[#64748B]">{active.skills.length} technologies · Avg {Math.round(active.skills.reduce((a, s) => a + s.percentage, 0) / active.skills.length)}% proficiency</p>
-          </div>
-          <div className="ml-auto flex gap-2">
-            {active.skills.map((s) => (
-              <div key={s.name} className="w-2 h-8 rounded-full" style={{ background: `${s.color}40` }}>
-                <motion.div
-                  className="w-full rounded-full"
-                  style={{ background: s.color }}
-                  initial={{ height: 0 }}
-                  animate={{ height: `${s.percentage}%` }}
-                  transition={{ duration: 0.8 }}
-                />
-              </div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Skill cards grid */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeCategory}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.3 }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-          >
-            {active.skills.map((skill, i) => (
-              <motion.div
-                key={skill.name}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.07 }}
-              >
-                <SkillCard skill={skill} />
-              </motion.div>
-            ))}
-          </motion.div>
-        </AnimatePresence>
-
-        {/* All skills overview */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mt-10 glass-card p-6"
-        >
-          <p className="text-sm font-700 text-white mb-5">All Technologies at a Glance</p>
-          <div className="flex flex-wrap gap-2">
-            {skillCategories.flatMap((cat) =>
-              cat.skills.map((s) => (
-                <span
-                  key={`${cat.id}-${s.name}`}
-                  className="tech-chip hover:scale-105 transition-transform"
-                  style={{ borderColor: `${s.color}30`, color: `${s.color}cc` }}
+              {skillCategories.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveCategoryId(cat.id)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-600 transition-all duration-200 ${
+                    activeCategory === cat.id
+                      ? "text-white"
+                      : "text-[#64748B] hover:text-[#94A3B8] bg-[rgba(255,255,255,0.02)] hover:bg-[rgba(255,255,255,0.04)] border border-[rgba(59,130,246,0.08)]"
+                  }`}
+                  style={
+                    activeCategory === cat.id
+                      ? { background: `${cat.color}20`, border: `1px solid ${cat.color}40`, color: cat.color }
+                      : {}
+                  }
                 >
-                  {s.icon} {s.name}
-                </span>
-              ))
+                  <span>{cat.icon}</span>
+                  {cat.category}
+                  <span
+                    className="text-[10px] font-700 px-1.5 py-0.5 rounded-full"
+                    style={
+                      activeCategory === cat.id
+                        ? { background: `${cat.color}30`, color: cat.color }
+                        : { background: "rgba(59,130,246,0.08)", color: "#475569" }
+                    }
+                  >
+                    {cat.skills.length}
+                  </span>
+                </button>
+              ))}
+            </motion.div>
+
+            {/* Category summary */}
+            {active && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="glass-card p-4 mb-6 flex items-center gap-4"
+              >
+                <span className="text-3xl">{active.icon}</span>
+                <div>
+                  <p className="text-base font-700 text-white">{active.category}</p>
+                  <p className="text-sm text-[#64748B]">{active.skills.length} technologies · Avg {Math.round(active.skills.reduce((a, s) => a + s.percentage, 0) / active.skills.length)}% proficiency</p>
+                </div>
+                <div className="ml-auto flex gap-2">
+                  {active.skills.map((s) => (
+                    <div key={s.name} className="w-2 h-8 rounded-full" style={{ background: `${s.color}40` }}>
+                      <motion.div
+                        className="w-full rounded-full"
+                        style={{ background: s.color }}
+                        initial={{ height: 0 }}
+                        animate={{ height: `${s.percentage}%` }}
+                        transition={{ duration: 0.8 }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
             )}
-          </div>
-        </motion.div>
+
+            {/* Skill cards grid */}
+            {active && (
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={active.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -16 }}
+                  transition={{ duration: 0.3 }}
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+                >
+                  {active.skills.map((skill, i) => (
+                    <motion.div
+                      key={skill._id}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: i * 0.07 }}
+                    >
+                      <SkillCard skill={skill} />
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </AnimatePresence>
+            )}
+
+            {/* All skills overview */}
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="mt-10 glass-card p-6"
+            >
+              <p className="text-sm font-700 text-white mb-5">All Technologies at a Glance</p>
+              <div className="flex flex-wrap gap-2">
+                {skillCategories.flatMap((cat) =>
+                  cat.skills.map((s) => (
+                    <span
+                      key={s._id}
+                      className="tech-chip hover:scale-105 transition-transform"
+                      style={{ borderColor: `${s.color}30`, color: `${s.color}cc` }}
+                    >
+                      {s.icon} {s.name}
+                    </span>
+                  ))
+                )}
+              </div>
+            </motion.div>
+          </>
+        )}
       </div>
     </section>
   );

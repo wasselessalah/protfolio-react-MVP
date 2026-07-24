@@ -7,8 +7,13 @@ import ProjectsPage from "@/pages/ProjectsPage";
 import ContactPage from "@/pages/ContactPage";
 import SkillsPage from "@/pages/SkillsPage";
 import ExperiencePage from "@/pages/ExperiencePage";
+import AdminRoutes from "@/admin/AdminRoutes";
 
 const router = createBrowserRouter([
+  {
+    path: "/admin/*",
+    element: <AdminRoutes />,
+  },
   {
     path: "/",
     element: <Layout />,

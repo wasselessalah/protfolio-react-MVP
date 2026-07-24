@@ -6,7 +6,8 @@ import {
   FiHome, FiUser, FiFolder, FiZap, FiBriefcase,
   FiMail, FiGithub, FiLinkedin, FiTwitter, FiMenu, FiX, FiDownload
 } from "react-icons/fi";
-import { information } from "@/data/information";
+import { useAbout } from "@/hooks/useAbout";
+import { useSocials } from "@/hooks/useSocials";
 
 const navLinks = [
   { label: "Home",       path: "/",           icon: FiHome },
@@ -21,7 +22,15 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { personal } = information;
+  
+  const { data: aboutData } = useAbout();
+  const { data: socialsData } = useSocials();
+
+  const name = aboutData?.name || "Wassel Essalah";
+  const shortName = name.split(" ")[0];
+  const username = "@" + name.split(" ").pop()?.toLowerCase();
+  const avatar = aboutData?.avatar || "";
+  const resumeUrl = aboutData?.resumeUrl || "#";
 
   // Close sidebar on route change
   useEffect(() => { setIsOpen(false); }, [pathname]);
@@ -43,13 +52,13 @@ export default function Navbar() {
         >
           <div className="relative">
             <div className="w-10 h-10 rounded-xl overflow-hidden ring-2 ring-[rgba(59,130,246,0.3)] group-hover:ring-[rgba(59,130,246,0.6)] transition-all duration-300">
-              <img src={personal.avatar} alt={personal.name} className="w-full h-full object-cover" />
+              <img src={avatar || "https://placehold.co/100x100"} alt={name} className="w-full h-full object-cover" />
             </div>
             <span className="absolute -bottom-0.5 -right-0.5 online-dot w-3 h-3" />
           </div>
           <div className="text-left">
-            <p className="text-sm font-700 text-white leading-none">Wassel</p>
-            <p className="text-xs text-[#64748B] mt-0.5 leading-none">@essalah</p>
+            <p className="text-sm font-700 text-white leading-none">{shortName}</p>
+            <p className="text-xs text-[#64748B] mt-0.5 leading-none">{username}</p>
           </div>
         </button>
       </div>
@@ -85,26 +94,27 @@ export default function Navbar() {
       <div className="px-6 py-4 border-t border-[rgba(59,130,246,0.1)]">
         <p className="text-[10px] font-700 uppercase tracking-widest text-[#334155] mb-3">Connect with me</p>
         <div className="flex items-center gap-2">
-          {[
-            { href: personal.social.github, icon: FiGithub, label: "GitHub" },
-            { href: personal.social.linkedin, icon: FiLinkedin, label: "LinkedIn" },
-            { href: personal.social.twitter, icon: FiTwitter, label: "Twitter" },
-          ].map(({ href, icon: Icon, label }) => (
-            <a
-              key={label}
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={label}
-              className="w-9 h-9 rounded-lg flex items-center justify-center text-[#475569] hover:text-[#3B82F6] hover:bg-[rgba(59,130,246,0.1)] border border-[rgba(59,130,246,0.08)] hover:border-[rgba(59,130,246,0.25)] transition-all duration-200"
-            >
-              <Icon size={16} />
-            </a>
-          ))}
+          {socialsData?.filter((s) => s.visible).map((social) => {
+            let Icon = FiLinkedin;
+            if (social.platform.toLowerCase() === 'github') Icon = FiGithub;
+            if (social.platform.toLowerCase() === 'twitter') Icon = FiTwitter;
+            return (
+              <a
+                key={social._id}
+                href={social.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={social.platform}
+                className="w-9 h-9 rounded-lg flex items-center justify-center text-[#475569] hover:text-[#3B82F6] hover:bg-[rgba(59,130,246,0.1)] border border-[rgba(59,130,246,0.08)] hover:border-[rgba(59,130,246,0.25)] transition-all duration-200"
+              >
+                <Icon size={16} />
+              </a>
+            );
+          })}
         </div>
 
         <a
-          href="/resume.pdf"
+          href={resumeUrl}
           download
           className="mt-4 flex items-center justify-center gap-2 w-full py-2.5 btn-primary text-sm rounded-xl"
         >
@@ -126,9 +136,9 @@ export default function Navbar() {
       <header className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 h-14 glass border-b border-[rgba(59,130,246,0.1)]">
         <button onClick={() => navigate("/")} className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg overflow-hidden ring-1 ring-[rgba(59,130,246,0.3)]">
-            <img src={personal.avatar} alt={personal.name} className="w-full h-full object-cover" />
+            <img src={avatar || "https://placehold.co/100x100"} alt={name} className="w-full h-full object-cover" />
           </div>
-          <span className="text-sm font-700 text-white">Wassel<span className="gradient-text-blue">.</span></span>
+          <span className="text-sm font-700 text-white">{shortName}<span className="gradient-text-blue">.</span></span>
         </button>
 
         <button

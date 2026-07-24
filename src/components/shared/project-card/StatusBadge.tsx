@@ -1,17 +1,18 @@
 // src/components/shared/project-card/StatusBadge.tsx
 import { cn } from "@/lib/utils";
-import type { ProjectStatus } from "@/data/projects";
+import type { Project } from "@/types/Project";
 
 interface StatusBadgeProps {
-  status: ProjectStatus;
+  status: Project['status'];
   isDark: boolean;
   size?: "sm" | "md";
 }
 
-const STATUS_DOT: Record<ProjectStatus, string> = {
+const STATUS_DOT: Record<Project['status'], string> = {
   Completed: "bg-emerald-500",
   "In Progress": "bg-amber-500",
   Archived: "bg-zinc-400",
+  Draft: "bg-zinc-300"
 };
 
 export default function StatusBadge({ status, isDark, size = "md" }: StatusBadgeProps) {

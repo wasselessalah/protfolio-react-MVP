@@ -5,7 +5,9 @@ import {
   FiMail, FiSend, FiMapPin, FiClock, FiGithub, FiLinkedin,
   FiTwitter, FiCheck, FiMessageCircle
 } from "react-icons/fi";
-import { information } from "@/data/information";
+import { useAbout } from "@/hooks/useAbout";
+import { useSocials } from "@/hooks/useSocials";
+import { useCreateMessage } from "@/hooks/useMessages";
 
 const quickMessages = [
   "Hi Wassel! I'd love to discuss an internship opportunity.",
@@ -19,16 +21,32 @@ export default function Contact() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [sent, setSent] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const { personal } = information;
+
+  const { data: aboutData } = useAbout();
+  const { data: socialsData = [] } = useSocials();
+  const { mutateAsync: sendMessage, isPending: loading } = useCreateMessage();
+
+  const avatar = aboutData?.avatar || "https://placehold.co/100x100";
+  const authorName = aboutData?.name || "Wassel Essalah";
+  const title = aboutData?.title || "Full Stack Developer";
+  const location = aboutData?.location || "Sousse, Tunisia";
+  const emailAddress = aboutData?.email || "wasselessalah@gmail.com";
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email || !message) return;
-    setLoading(true);
-    await new Promise((r) => setTimeout(r, 1500));
-    setLoading(false);
-    setSent(true);
+    
+    try {
+      await sendMessage({
+        name,
+        email,
+        subject: "Portfolio Contact Form",
+        message
+      });
+      setSent(true);
+    } catch (error) {
+      console.error("Failed to send message:", error);
+    }
   };
 
   return (
@@ -61,20 +79,20 @@ export default function Contact() {
               <div className="flex items-center gap-3 mb-4">
                 <div className="relative">
                   <div className="w-12 h-12 rounded-2xl overflow-hidden ring-2 ring-[rgba(59,130,246,0.3)]">
-                    <img src={personal.avatar} alt={personal.name} className="w-full h-full object-cover" />
+                    <img src={avatar} alt={authorName} className="w-full h-full object-cover" />
                   </div>
                   <span className="absolute -bottom-0.5 -right-0.5 online-dot w-3 h-3" />
                 </div>
                 <div>
-                  <p className="text-sm font-700 text-white">{personal.name}</p>
-                  <p className="text-xs text-[#64748B]">{personal.title}</p>
+                  <p className="text-sm font-700 text-white">{authorName}</p>
+                  <p className="text-xs text-[#64748B]">{title}</p>
                 </div>
               </div>
 
               <div className="space-y-2.5 mb-4">
                 {[
-                  { icon: FiMail, text: "wasselessalah@gmail.com" },
-                  { icon: FiMapPin, text: personal.location },
+                  { icon: FiMail, text: emailAddress },
+                  { icon: FiMapPin, text: location },
                   { icon: FiClock, text: "Response within 24 hours" },
                   { icon: FiMessageCircle, text: "Open to all opportunities" },
                 ].map(({ icon: Icon, text }) => (
@@ -86,21 +104,22 @@ export default function Contact() {
               </div>
 
               <div className="flex items-center gap-2">
-                {[
-                  { href: personal.social.github, icon: FiGithub },
-                  { href: personal.social.linkedin, icon: FiLinkedin },
-                  { href: personal.social.twitter, icon: FiTwitter },
-                ].map(({ href, icon: Icon }) => (
-                  <a
-                    key={href}
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-8 h-8 rounded-lg flex items-center justify-center text-[#475569] hover:text-[#3B82F6] hover:bg-[rgba(59,130,246,0.08)] border border-[rgba(59,130,246,0.08)] transition-all"
-                  >
-                    <Icon size={14} />
-                  </a>
-                ))}
+                {socialsData.filter(s => s.visible).map((social) => {
+                  let Icon = FiLinkedin;
+                  if (social.platform.toLowerCase() === 'github') Icon = FiGithub;
+                  if (social.platform.toLowerCase() === 'twitter') Icon = FiTwitter;
+                  return (
+                    <a
+                      key={social._id}
+                      href={social.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-[#475569] hover:text-[#3B82F6] hover:bg-[rgba(59,130,246,0.08)] border border-[rgba(59,130,246,0.08)] transition-all"
+                    >
+                      <Icon size={14} />
+                    </a>
+                  );
+                })}
               </div>
             </motion.div>
 
@@ -114,7 +133,7 @@ export default function Contact() {
             >
               <div className="flex items-center gap-2 mb-3">
                 <span className="online-dot" />
-                <p className="text-sm font-700 text-[#22C55E]">Currently Available</p>
+                <p className="text-sm font-700 text-[#22C55E]">{aboutData?.availability === "Available" ? "Currently Available" : aboutData?.availability || "Available"}</p>
               </div>
               <p className="text-xs text-[#64748B] leading-relaxed">
                 Open to internship positions, freelance contracts, and full-time opportunities starting 2026.
@@ -155,12 +174,12 @@ export default function Contact() {
             <div className="flex items-center gap-3 px-5 py-4 border-b border-[rgba(59,130,246,0.1)]">
               <div className="relative">
                 <div className="w-10 h-10 rounded-xl overflow-hidden">
-                  <img src={personal.avatar} alt={personal.name} className="w-full h-full object-cover" />
+                  <img src={avatar} alt={authorName} className="w-full h-full object-cover" />
                 </div>
                 <span className="absolute -bottom-0.5 -right-0.5 online-dot w-3 h-3" />
               </div>
               <div>
-                <p className="text-sm font-700 text-white">{personal.name}</p>
+                <p className="text-sm font-700 text-white">{authorName}</p>
                 <p className="text-xs text-[#22C55E]">Active now</p>
               </div>
               <div className="ml-auto badge badge-green">Responding</div>
@@ -171,7 +190,7 @@ export default function Contact() {
               {/* Bot greeting */}
               <div className="flex items-end gap-2">
                 <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0">
-                  <img src={personal.avatar} alt="" className="w-full h-full object-cover" />
+                  <img src={avatar} alt="" className="w-full h-full object-cover" />
                 </div>
                 <div className="bg-[rgba(59,130,246,0.12)] border border-[rgba(59,130,246,0.2)] rounded-2xl rounded-bl-sm px-4 py-2.5 max-w-xs">
                   <p className="text-sm text-[#94A3B8]">Hey! 👋 I'm Wassel. Send me a message and I'll get back to you within 24 hours.</p>
@@ -193,7 +212,7 @@ export default function Contact() {
                         <p className="text-sm text-[#94A3B8]">Message received! I'll be in touch soon. 🚀</p>
                       </div>
                       <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0">
-                        <img src={personal.avatar} alt="" className="w-full h-full object-cover" />
+                        <img src={avatar} alt="" className="w-full h-full object-cover" />
                       </div>
                     </div>
                   </motion.div>

@@ -5,7 +5,7 @@ import { useTheme } from "@/context/ThemeContext";
 import { cn } from "@/lib/utils";
 import { FiCalendar, FiClock, FiArrowUpRight } from "react-icons/fi";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
-import type { Project } from "@/data/projects";
+import type { Project } from "@/types/Project";
 import StatusBadge from "@/components/shared/project-card/StatusBadge";
 import TechChip from "@/components/shared/project-card/TechChip";
 import ProjectDetailSheet from "@/components/shared/project-card/ProjectDetailSheet";
@@ -20,7 +20,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  const { title, description, thumbnail, category, year, duration, status, technologies, links } =
+  const { title, description, thumbnail, category, year, duration, status, technologies, liveUrl } =
     project;
 
   const hasLink = (url?: string) => Boolean(url && url.trim().length > 0);
@@ -87,9 +87,9 @@ export default function ProjectCard({ project }: ProjectCardProps) {
                 <StatusBadge status={status} isDark size="sm" />
               </span>
 
-              {hasLink(links.live) && (
+              {hasLink(liveUrl) && (
                 <a
-                  href={links.live}
+                  href={liveUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`Open live demo of ${title}`}

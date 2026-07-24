@@ -1,17 +1,23 @@
 // src/components/sections/Experience.tsx
 import { motion } from "framer-motion";
 import { FiBriefcase, FiCalendar } from "react-icons/fi";
-import { experiences } from "@/data/experience";
+import { useExperiences } from "@/hooks/useExperiences";
 
 const TYPE_CONFIG = {
-  education:    { label: "Education",    color: "#3B82F6" },
-  project:      { label: "Project",      color: "#8B5CF6" },
-  freelance:    { label: "Freelance",    color: "#F59E0B" },
-  achievement:  { label: "Achievement",  color: "#22C55E" },
-  certificate:  { label: "Certificate", color: "#06B6D4" },
+  "Full-time":  { label: "Full-time",    color: "#3B82F6" },
+  "Part-time":  { label: "Part-time",      color: "#8B5CF6" },
+  "Freelance":  { label: "Freelance",    color: "#F59E0B" },
+  "Internship": { label: "Internship",  color: "#22C55E" },
+  "Contract":   { label: "Contract", color: "#06B6D4" },
 };
 
 export default function Experience() {
+  const { data: experiences = [], isLoading } = useExperiences();
+
+  if (isLoading) {
+    return <div className="text-center py-20 text-[#64748B]">Loading experiences...</div>;
+  }
+
   return (
     <section className="section-wrapper px-6 lg:px-10">
       <div className="max-w-4xl mx-auto">
@@ -22,7 +28,7 @@ export default function Experience() {
           <h2 className="section-title">
             My <span className="gradient-text-blue">Journey</span>
           </h2>
-          <p className="section-subtitle mt-3">Education, projects, and achievements on a LinkedIn-style timeline.</p>
+          <p className="section-subtitle mt-3">Professional experience and roles on a LinkedIn-style timeline.</p>
         </motion.div>
 
         {/* Timeline */}
@@ -32,10 +38,10 @@ export default function Experience() {
 
           <div className="space-y-6">
             {experiences.map((exp, i) => {
-              const cfg = TYPE_CONFIG[exp.type];
+              const cfg = TYPE_CONFIG[exp.type] || { label: exp.type, color: "#3B82F6" };
               return (
                 <motion.div
-                  key={exp.id}
+                  key={exp._id}
                   initial={{ opacity: 0, x: -24 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, margin: "-50px" }}
@@ -53,7 +59,7 @@ export default function Experience() {
                       fontSize: 18,
                     }}
                   >
-                    {exp.icon}
+                    💼
                   </div>
 
                   {/* Card */}
@@ -61,12 +67,12 @@ export default function Experience() {
                     <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
                       <div>
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="text-sm font-700 text-white">{exp.title}</h3>
+                          <h3 className="text-sm font-700 text-white">{exp.position}</h3>
                           {exp.current && (
                             <span className="badge badge-green text-[9px]">Current</span>
                           )}
                         </div>
-                        <p className="text-sm text-[#64748B]">{exp.organization}</p>
+                        <p className="text-sm text-[#64748B]">{exp.company}</p>
                       </div>
                       <div className="flex flex-col items-end gap-1">
                         <span
@@ -77,16 +83,16 @@ export default function Experience() {
                         </span>
                         <span className="flex items-center gap-1 text-xs text-[#475569]">
                           <FiCalendar size={10} />
-                          {exp.startDate}{exp.endDate ? ` – ${exp.endDate}` : exp.current ? " – Present" : ""}
+                          {new Date(exp.startDate).getFullYear()}{exp.endDate ? ` – ${new Date(exp.endDate).getFullYear()}` : exp.current ? " – Present" : ""}
                         </span>
                       </div>
                     </div>
 
                     <p className="text-sm text-[#94A3B8] leading-relaxed mb-3">{exp.description}</p>
 
-                    {exp.skills && exp.skills.length > 0 && (
+                    {exp.technologies && exp.technologies.length > 0 && (
                       <div className="flex flex-wrap gap-1.5">
-                        {exp.skills.map((skill) => (
+                        {exp.technologies.map((skill) => (
                           <span key={skill} className="tech-chip text-[10px]">{skill}</span>
                         ))}
                       </div>

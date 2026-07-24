@@ -17,7 +17,7 @@ import {
 } from "react-icons/fi";
 import { SiFigma } from "react-icons/si";
 import { SheetContent } from "@/components/ui/sheet";
-import type { Project } from "@/data/projects";
+import type { Project } from "@/types/Project";
 import StatusBadge from "@/components/shared/project-card/StatusBadge";
 import TechChip from "@/components/shared/project-card/TechChip";
 import ActionButton from "@/components/shared/project-card/Actionbutton";
@@ -44,7 +44,9 @@ export default function ProjectDetailSheet({ project, isDark }: ProjectDetailShe
     technologies,
     skills,
     features,
-    links,
+    liveUrl,
+    githubUrl,
+    figmaUrl,
   } = project;
 
   // Ensure images array is always populated with valid string URLs
@@ -292,7 +294,7 @@ export default function ProjectDetailSheet({ project, isDark }: ProjectDetailShe
         </div>
 
         {/* Footer */}
-        {links && (hasLink(links.live) || hasLink(links.github) || hasLink(links.figma)) && (
+        {((hasLink(liveUrl) || hasLink(githubUrl) || hasLink(figmaUrl))) && (
           <div
             className={cn(
               "sticky bottom-0 z-10 shrink-0 border-t px-6 py-4 sm:px-10 transition-colors",
@@ -300,27 +302,27 @@ export default function ProjectDetailSheet({ project, isDark }: ProjectDetailShe
             )}
           >
             <div className="mx-auto flex max-w-3xl flex-wrap gap-3">
-              {hasLink(links.live) && (
+              {hasLink(liveUrl) && (
                 <ActionButton
-                  href={links.live!}
+                  href={liveUrl!}
                   label="View Live"
                   icon={<FiArrowUpRight size={16} />}
                   variant="primary"
                   isDark={isDark}
                 />
               )}
-              {hasLink(links.github) && (
+              {hasLink(githubUrl) && (
                 <ActionButton
-                  href={links.github!}
+                  href={githubUrl!}
                   label="Source Code"
                   icon={<FiGithub size={16} />}
                   variant="secondary"
                   isDark={isDark}
                 />
               )}
-              {hasLink(links.figma) && (
+              {hasLink(figmaUrl) && (
                 <ActionButton
-                  href={links.figma!}
+                  href={figmaUrl!}
                   label="Design"
                   icon={<SiFigma size={16} />}
                   variant="secondary"

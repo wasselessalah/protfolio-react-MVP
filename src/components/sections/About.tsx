@@ -1,10 +1,10 @@
 // src/components/sections/About.tsx
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import {
   FiMapPin, FiGlobe, FiBook, FiTarget, FiAward, FiCheckCircle,
   FiCode, FiBriefcase, FiHeart, FiStar
 } from "react-icons/fi";
-import { information } from "@/data/information";
+import { useAbout } from "@/hooks/useAbout";
 
 const goals = [
   { text: "Master Cloud & DevOps", done: false },
@@ -28,13 +28,45 @@ const achievements = [
   { icon: FiAward, label: "Top Performer", color: "#22C55E" },
 ];
 
-const cardVariant = {
+const cardVariant: Variants = {
   hidden: { opacity: 0, y: 24 },
   visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.5, ease: "easeOut" } }),
 };
 
 export default function About() {
-  const { personal, about } = information;
+  const { data: aboutData, isLoading } = useAbout();
+
+  if (isLoading) {
+    return (
+      <section className="section-wrapper px-6 lg:px-10">
+        <div className="max-w-5xl mx-auto">
+          <div className="mb-10">
+            <div className="w-24 h-4 bg-zinc-800 rounded animate-pulse mb-3" />
+            <div className="w-64 h-8 bg-zinc-800 rounded animate-pulse mb-3" />
+            <div className="w-96 h-4 bg-zinc-800 rounded animate-pulse" />
+          </div>
+          <div className="grid lg:grid-cols-3 gap-6">
+            <div className="space-y-4">
+              {[1, 2, 3, 4].map((i) => <div key={i} className="h-40 bg-zinc-900/50 rounded-2xl animate-pulse" />)}
+            </div>
+            <div className="lg:col-span-2 space-y-4">
+              <div className="h-64 bg-zinc-900/50 rounded-2xl animate-pulse" />
+              {[1, 2, 3].map((i) => <div key={i} className="h-32 bg-zinc-900/50 rounded-2xl animate-pulse" />)}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  const name = aboutData?.name || "Wassel Essalah";
+  const title = aboutData?.title || "Full Stack Developer";
+  const location = aboutData?.location || "Sousse, Tunisia";
+  const avatar = aboutData?.avatar || "https://placehold.co/100x100";
+  const experience = aboutData?.yearsOfExperience || "2+";
+  const projectsCount = aboutData?.totalProjects || "15+";
+  const technologies = aboutData?.technologies || [];
+  const description = aboutData?.longBio ? aboutData.longBio.split('\n\n') : ["Passionate software engineer building web applications."];
 
   return (
     <section className="section-wrapper px-6 lg:px-10">
@@ -77,7 +109,7 @@ export default function About() {
               <p className="text-xs font-700 uppercase tracking-widest text-[#334155] mb-4">Info</p>
               <div className="space-y-3">
                 {[
-                  { icon: FiMapPin, label: personal.location },
+                  { icon: FiMapPin, label: location },
                   { icon: FiBook, label: "Computer Science" },
                   { icon: FiGlobe, label: "Available Worldwide" },
                   { icon: FiBriefcase, label: "Open for Internship" },
@@ -127,15 +159,15 @@ export default function About() {
             <motion.div custom={4} variants={cardVariant} initial="hidden" whileInView="visible" viewport={{ once: true }} className="glass-card p-6">
               <div className="flex items-center gap-4 mb-5">
                 <div className="w-14 h-14 rounded-2xl overflow-hidden ring-2 ring-[rgba(59,130,246,0.3)]">
-                  <img src={personal.avatars.studio} alt={personal.name} className="w-full h-full object-cover" />
+                  <img src={avatar} alt={name} className="w-full h-full object-cover" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-800 text-white">{personal.name}</h3>
-                  <p className="gradient-text-blue text-sm font-600">{personal.title}</p>
+                  <h3 className="text-lg font-800 text-white">{name}</h3>
+                  <p className="gradient-text-blue text-sm font-600">{title}</p>
                 </div>
               </div>
               <div className="space-y-3">
-                {about.description.map((para, i) => (
+                {description.map((para, i) => (
                   <p key={i} className="text-sm text-[#94A3B8] leading-relaxed">{para}</p>
                 ))}
               </div>
@@ -143,9 +175,9 @@ export default function About() {
               {/* Stats row */}
               <div className="grid grid-cols-3 gap-3 mt-6 pt-5 border-t border-[rgba(59,130,246,0.1)]">
                 {[
-                  { label: "Experience", value: about.experience },
-                  { label: "Projects", value: about.projects },
-                  { label: "Technologies", value: `${about.technologies.length}+` },
+                  { label: "Experience", value: experience },
+                  { label: "Projects", value: projectsCount },
+                  { label: "Technologies", value: `${technologies.length}+` },
                 ].map(({ label, value }) => (
                   <div key={label} className="text-center">
                     <p className="text-xl font-800 gradient-text-blue">{value}</p>
@@ -195,7 +227,7 @@ export default function About() {
                 <p className="text-sm font-700 text-white">Technology Stack</p>
               </div>
               <div className="flex flex-wrap gap-2">
-                {about.technologies.map((tech) => (
+                {technologies.map((tech) => (
                   <span key={tech} className="tech-chip hover:scale-105 transition-transform">{tech}</span>
                 ))}
               </div>
