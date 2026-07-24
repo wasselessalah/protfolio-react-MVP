@@ -1,278 +1,206 @@
 // src/components/sections/About.tsx
-
 import { motion } from "framer-motion";
-import { FaBriefcase, FaCode, FaLayerGroup } from "react-icons/fa";
-import { useTheme } from "@/context/ThemeContext";
+import {
+  FiMapPin, FiGlobe, FiBook, FiTarget, FiAward, FiCheckCircle,
+  FiCode, FiBriefcase, FiHeart, FiStar
+} from "react-icons/fi";
 import { information } from "@/data/information";
-import { cn } from "@/lib/utils";
+
+const goals = [
+  { text: "Master Cloud & DevOps", done: false },
+  { text: "Build impactful products with AI", done: false },
+  { text: "Contribute to Open Source", done: false },
+  { text: "Grow as a Software Engineer", done: false },
+];
+
+const interests = ["Clean Code", "System Design", "AI/ML", "Cloud Computing", "Open Source", "UI/UX", "Problem Solving"];
+
+const languages = [
+  { name: "Arabic", level: "Native", flag: "🇹🇳" },
+  { name: "French", level: "Intermediate", flag: "🇫🇷" },
+  { name: "English", level: "Professional", flag: "🇬🇧" },
+];
+
+const achievements = [
+  { icon: FiCode, label: "15+ Projects", color: "#3B82F6" },
+  { icon: FiBriefcase, label: "2+ Years Exp.", color: "#8B5CF6" },
+  { icon: FiStar, label: "100% Commitment", color: "#F59E0B" },
+  { icon: FiAward, label: "Top Performer", color: "#22C55E" },
+];
+
+const cardVariant = {
+  hidden: { opacity: 0, y: 24 },
+  visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.5, ease: "easeOut" } }),
+};
 
 export default function About() {
-  const { theme } = useTheme();
-
   const { personal, about } = information;
 
-  if (!about) {
-    return (
-      <section className="py-24 text-center">
-        <h2 className="text-2xl font-bold">About section not found.</h2>
-      </section>
-    );
-  }
-
   return (
-    <section
-      id="about"
-      className={cn(
-        "py-24 transition-colors duration-300",
-        theme === "dark" ? "bg-gray-900" : "bg-white"
-      )}
-    >
-      <div className="container mx-auto px-6">
-        {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mx-auto mb-20 max-w-3xl text-center"
-        >
-          <span className="rounded-full bg-blue-600/10 px-4 py-2 text-sm font-semibold text-blue-600">
-            {about.title}
-          </span>
+    <section className="section-wrapper px-6 lg:px-10">
+      <div className="max-w-5xl mx-auto">
 
-          <h2
-            className={cn(
-              "mt-6 text-4xl font-bold md:text-5xl",
-              theme === "dark" ? "text-white" : "text-gray-900"
-            )}
-          >
-            Get to know me
+        {/* Section Label */}
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-10">
+          <div className="section-label"><FiBook size={12} />About Me</div>
+          <h2 className="section-title">
+            The <span className="gradient-text-blue">full story</span>
           </h2>
-
-          <p
-            className={cn(
-              "mx-auto mt-6 max-w-2xl text-lg",
-              theme === "dark" ? "text-gray-400" : "text-gray-600"
-            )}
-          >
-            Passionate about building scalable, modern, and user-friendly web
-            applications.
-          </p>
+          <p className="section-subtitle mt-3">Everything about me — LinkedIn style.</p>
         </motion.div>
 
-        <div className="grid items-center gap-16 lg:grid-cols-2">
-          {/* Image */}
-          <motion.div
-            initial={{ opacity: 0, x: -60 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="flex justify-center"
-          >
-            <div className="relative w-72 h-80 sm:w-80 sm:h-96">
-              {/* Layered ambient glow, consistent with Hero */}
-              <div
-                className={cn(
-                  "absolute -inset-6 rounded-[2.5rem] blur-3xl opacity-40",
-                  theme === "dark"
-                    ? "bg-gradient-to-br from-blue-500 to-purple-600"
-                    : "bg-gradient-to-br from-blue-300 to-purple-300"
-                )}
-              />
+        <div className="grid lg:grid-cols-3 gap-6">
 
-              {/* Dashed decorative ring, offset behind the photo */}
-              <div
-                className={cn(
-                  "absolute -top-4 -right-4 w-full h-full rounded-[2rem] border-2 border-dashed",
-                  theme === "dark" ? "border-blue-500/40" : "border-blue-400/50"
-                )}
-              />
+          {/* LEFT COLUMN */}
+          <div className="space-y-4">
 
-              {/* Photo frame */}
-              <div
-                className={cn(
-                  "relative w-full h-full rounded-[2rem] overflow-hidden",
-                  "ring-4 shadow-2xl transition-transform duration-300 hover:-translate-y-1",
-                  theme === "dark" ? "ring-blue-500/50" : "ring-blue-400/50"
-                )}
-              >
-                <img
-                  src={personal.avatars.workspace}
-                  alt={personal.name}
-                  loading="lazy"
-                  className="w-full h-full object-cover"
+            {/* Profile Completion */}
+            <motion.div custom={0} variants={cardVariant} initial="hidden" whileInView="visible" viewport={{ once: true }} className="glass-card p-5">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-sm font-700 text-white">Profile Strength</p>
+                <span className="text-xs font-700 text-[#22C55E]">85%</span>
+              </div>
+              <div className="skill-bar">
+                <motion.div
+                  className="skill-bar-fill"
+                  initial={{ width: 0 }}
+                  whileInView={{ width: "85%" }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 1.2, ease: "easeOut" }}
                 />
               </div>
+              <p className="text-xs text-[#475569] mt-2">Add a blog post to reach 100%</p>
+            </motion.div>
 
-              {/* Floating experience badge */}
-              <div
-                className={cn(
-                  "absolute -bottom-6 -left-6 flex items-center gap-3 rounded-2xl px-5 py-4 shadow-xl",
-                  theme === "dark" ? "bg-gray-800" : "bg-white"
-                )}
-              >
-                <div className="flex items-center justify-center w-11 h-11 rounded-xl bg-blue-600/10 text-blue-600">
-                  <FaBriefcase size={18} />
+            {/* Quick Info */}
+            <motion.div custom={1} variants={cardVariant} initial="hidden" whileInView="visible" viewport={{ once: true }} className="glass-card p-5">
+              <p className="text-xs font-700 uppercase tracking-widest text-[#334155] mb-4">Info</p>
+              <div className="space-y-3">
+                {[
+                  { icon: FiMapPin, label: personal.location },
+                  { icon: FiBook, label: "Computer Science" },
+                  { icon: FiGlobe, label: "Available Worldwide" },
+                  { icon: FiBriefcase, label: "Open for Internship" },
+                ].map(({ icon: Icon, label }) => (
+                  <div key={label} className="flex items-center gap-2.5 text-sm text-[#94A3B8]">
+                    <Icon size={14} className="text-[#3B82F6] flex-shrink-0" />
+                    {label}
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Languages */}
+            <motion.div custom={2} variants={cardVariant} initial="hidden" whileInView="visible" viewport={{ once: true }} className="glass-card p-5">
+              <p className="text-xs font-700 uppercase tracking-widest text-[#334155] mb-4">Languages</p>
+              <div className="space-y-3">
+                {languages.map((lang) => (
+                  <div key={lang.name} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-sm text-[#94A3B8]">
+                      <span>{lang.flag}</span>
+                      {lang.name}
+                    </div>
+                    <span className="badge badge-blue text-[10px]">{lang.level}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Achievements */}
+            <motion.div custom={3} variants={cardVariant} initial="hidden" whileInView="visible" viewport={{ once: true }} className="glass-card p-5">
+              <p className="text-xs font-700 uppercase tracking-widest text-[#334155] mb-4">Achievements</p>
+              <div className="grid grid-cols-2 gap-2">
+                {achievements.map(({ icon: Icon, label, color }) => (
+                  <div key={label} className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-center hover-lift cursor-default">
+                    <Icon size={18} style={{ color }} />
+                    <span className="text-xs text-[#94A3B8] leading-tight">{label}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+
+          {/* RIGHT COLUMN (x2 wide) */}
+          <div className="lg:col-span-2 space-y-4">
+
+            {/* Bio Card */}
+            <motion.div custom={4} variants={cardVariant} initial="hidden" whileInView="visible" viewport={{ once: true }} className="glass-card p-6">
+              <div className="flex items-center gap-4 mb-5">
+                <div className="w-14 h-14 rounded-2xl overflow-hidden ring-2 ring-[rgba(59,130,246,0.3)]">
+                  <img src={personal.avatars.studio} alt={personal.name} className="w-full h-full object-cover" />
                 </div>
                 <div>
-                  <p
-                    className={cn(
-                      "text-xl font-bold leading-none",
-                      theme === "dark" ? "text-white" : "text-gray-900"
-                    )}
-                  >
-                    {about.experience}
-                  </p>
-                  <p
-                    className={cn(
-                      "text-xs mt-1",
-                      theme === "dark" ? "text-gray-400" : "text-gray-500"
-                    )}
-                  >
-                    Experience
-                  </p>
+                  <h3 className="text-lg font-800 text-white">{personal.name}</h3>
+                  <p className="gradient-text-blue text-sm font-600">{personal.title}</p>
                 </div>
               </div>
-            </div>
-          </motion.div>
-
-          {/* Content */}
-          <motion.div
-            initial={{ opacity: 0, x: 60 }}
-            viewport={{ once: true }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7 }}
-          >
-            <h3
-              className={cn(
-                "text-4xl font-bold",
-                theme === "dark" ? "text-white" : "text-gray-900"
-              )}
-            >
-              {personal.name}
-            </h3>
-
-            <p className="mt-2 text-xl font-semibold text-blue-600">
-              {personal.title}
-            </p>
-
-            <div className="mt-8 space-y-5">
-              {about.description?.map((paragraph) => (
-                <p
-                  key={paragraph}
-                  className={cn(
-                    "leading-8",
-                    theme === "dark" ? "text-gray-400" : "text-gray-600"
-                  )}
-                >
-                  {paragraph}
-                </p>
-              ))}
-            </div>
-
-            {/* Statistics */}
-            <div className="mt-10 grid gap-5 sm:grid-cols-3">
-              <div
-                className={cn(
-                  "group rounded-2xl p-6 text-center transition-all duration-300 hover:-translate-y-1",
-                  theme === "dark"
-                    ? "bg-gray-800 hover:bg-gray-800/70"
-                    : "bg-gray-100 hover:bg-gray-50 hover:shadow-lg"
-                )}
-              >
-                <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600/10 text-blue-600 transition-transform duration-300 group-hover:scale-110">
-                  <FaBriefcase size={18} />
-                </div>
-                <h4 className="text-3xl font-bold text-blue-600">
-                  {about.experience}
-                </h4>
-                <p
-                  className={cn(
-                    "mt-2 text-sm",
-                    theme === "dark" ? "text-gray-400" : "text-gray-600"
-                  )}
-                >
-                  Experience
-                </p>
+              <div className="space-y-3">
+                {about.description.map((para, i) => (
+                  <p key={i} className="text-sm text-[#94A3B8] leading-relaxed">{para}</p>
+                ))}
               </div>
 
-              <div
-                className={cn(
-                  "group rounded-2xl p-6 text-center transition-all duration-300 hover:-translate-y-1",
-                  theme === "dark"
-                    ? "bg-gray-800 hover:bg-gray-800/70"
-                    : "bg-gray-100 hover:bg-gray-50 hover:shadow-lg"
-                )}
-              >
-                <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-purple-600/10 text-purple-600 transition-transform duration-300 group-hover:scale-110">
-                  <FaLayerGroup size={18} />
-                </div>
-                <h4 className="text-3xl font-bold text-purple-600">
-                  {about.projects}
-                </h4>
-                <p
-                  className={cn(
-                    "mt-2 text-sm",
-                    theme === "dark" ? "text-gray-400" : "text-gray-600"
-                  )}
-                >
-                  Projects
-                </p>
+              {/* Stats row */}
+              <div className="grid grid-cols-3 gap-3 mt-6 pt-5 border-t border-[rgba(59,130,246,0.1)]">
+                {[
+                  { label: "Experience", value: about.experience },
+                  { label: "Projects", value: about.projects },
+                  { label: "Technologies", value: `${about.technologies.length}+` },
+                ].map(({ label, value }) => (
+                  <div key={label} className="text-center">
+                    <p className="text-xl font-800 gradient-text-blue">{value}</p>
+                    <p className="text-xs text-[#475569] mt-0.5">{label}</p>
+                  </div>
+                ))}
               </div>
+            </motion.div>
 
-              <div
-                className={cn(
-                  "group rounded-2xl p-6 text-center transition-all duration-300 hover:-translate-y-1",
-                  theme === "dark"
-                    ? "bg-gray-800 hover:bg-gray-800/70"
-                    : "bg-gray-100 hover:bg-gray-50 hover:shadow-lg"
-                )}
-              >
-                <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-green-600/10 text-green-600 transition-transform duration-300 group-hover:scale-110">
-                  <FaCode size={18} />
-                </div>
-                <h4 className="text-3xl font-bold text-green-600">
-                  {about.technologies.length}+
-                </h4>
-                <p
-                  className={cn(
-                    "mt-2 text-sm",
-                    theme === "dark" ? "text-gray-400" : "text-gray-600"
-                  )}
-                >
-                  Technologies
-                </p>
+            {/* Interests */}
+            <motion.div custom={5} variants={cardVariant} initial="hidden" whileInView="visible" viewport={{ once: true }} className="glass-card p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <FiHeart size={14} className="text-[#EC4899]" />
+                <p className="text-sm font-700 text-white">Interests &amp; Passions</p>
               </div>
-            </div>
-
-            {/* Technologies */}
-            <div className="mt-12">
-              <h4
-                className={cn(
-                  "mb-5 text-xl font-semibold",
-                  theme === "dark" ? "text-white" : "text-gray-900"
-                )}
-              >
-                My Tech Stack
-              </h4>
-
-              <div className="flex flex-wrap gap-3">
-                {about.technologies?.map((tech) => (
-                  <span
-                    key={tech}
-                    className={cn(
-                      "rounded-full px-4 py-2 text-sm font-medium transition duration-300 hover:scale-105",
-                      theme === "dark"
-                        ? "bg-blue-900/30 text-blue-300"
-                        : "bg-blue-100 text-blue-700"
-                    )}
-                  >
-                    {tech}
+              <div className="flex flex-wrap gap-2">
+                {interests.map((item) => (
+                  <span key={item} className="badge badge-blue hover:scale-105 transition-transform cursor-default">
+                    {item}
                   </span>
                 ))}
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+
+            {/* Goals */}
+            <motion.div custom={6} variants={cardVariant} initial="hidden" whileInView="visible" viewport={{ once: true }} className="glass-card p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <FiTarget size={14} className="text-[#3B82F6]" />
+                <p className="text-sm font-700 text-white">Current Goals</p>
+              </div>
+              <div className="space-y-3">
+                {goals.map(({ text, done }) => (
+                  <div key={text} className="flex items-center gap-3">
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${done ? "bg-[#22C55E]" : "border-2 border-[rgba(59,130,246,0.3)]"}`}>
+                      {done && <FiCheckCircle size={12} className="text-white" />}
+                    </div>
+                    <span className={`text-sm ${done ? "line-through text-[#475569]" : "text-[#94A3B8]"}`}>{text}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Tech Stack */}
+            <motion.div custom={7} variants={cardVariant} initial="hidden" whileInView="visible" viewport={{ once: true }} className="glass-card p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <FiCode size={14} className="text-[#8B5CF6]" />
+                <p className="text-sm font-700 text-white">Technology Stack</p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {about.technologies.map((tech) => (
+                  <span key={tech} className="tech-chip hover:scale-105 transition-transform">{tech}</span>
+                ))}
+              </div>
+            </motion.div>
+          </div>
         </div>
       </div>
     </section>
