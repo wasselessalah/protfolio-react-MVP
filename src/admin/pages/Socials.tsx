@@ -15,7 +15,7 @@ function SocialForm({ initial, onSave, onCancel, loading }: {
   loading?: boolean;
 }) {
   const [form, setForm] = useState<Partial<Social>>(initial || {
-    platform: '', url: '', icon: 'FiGithub', username: '', visible: true, displayOrder: 0,
+    platform: 'GitHub', url: '', username: '', visible: true, displayOrder: 0,
   });
 
   function set<K extends keyof Social>(key: K, val: Social[K]) {
@@ -26,8 +26,14 @@ function SocialForm({ initial, onSave, onCancel, loading }: {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
       <div className="grid-2" style={{ gap: 12 }}>
         <div>
-          <label className="admin-label">Platform Name *</label>
-          <input className="admin-input" value={form.platform || ''} onChange={(e) => set('platform', e.target.value)} placeholder="GitHub, LinkedIn..." required />
+          <label className="admin-label">Platform *</label>
+          <select className="admin-input" value={form.platform || 'GitHub'} onChange={(e) => set('platform', e.target.value as any)}>
+            <option value="GitHub">GitHub</option>
+            <option value="LinkedIn">LinkedIn</option>
+            <option value="Facebook">Facebook</option>
+            <option value="Instagram">Instagram</option>
+            <option value="YouTube">YouTube</option>
+          </select>
         </div>
         <div>
           <label className="admin-label">Username</label>
@@ -41,11 +47,6 @@ function SocialForm({ initial, onSave, onCancel, loading }: {
       </div>
 
       <div className="grid-2" style={{ gap: 12 }}>
-        <div>
-          <label className="admin-label">Icon Name (React Icons)</label>
-          <input className="admin-input" value={form.icon || ''} onChange={(e) => set('icon', e.target.value)} placeholder="FiGithub, FaLinkedin..." />
-          <p style={{ fontSize: 11, color: 'var(--admin-text-dim)', marginTop: 4 }}>Must match a react-icons name (e.g. FiTwitter, FiInstagram)</p>
-        </div>
         <div>
           <label className="admin-label">Display Order</label>
           <input className="admin-input" type="number" value={form.displayOrder ?? 0} onChange={(e) => set('displayOrder', Number(e.target.value))} />
@@ -127,7 +128,7 @@ export default function SocialsPage() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <div style={{ width: 36, height: 36, borderRadius: 8, background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <span style={{ fontSize: 16, color: 'var(--admin-text)' }}>{item.icon.substring(0,2) || '🔗'}</span>
+                    <span style={{ fontSize: 16, color: 'var(--admin-text)' }}>{item.platform.substring(0,2) || '🔗'}</span>
                   </div>
                   <div>
                     <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--admin-text)' }}>{item.platform}</div>

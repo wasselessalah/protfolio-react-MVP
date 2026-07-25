@@ -14,6 +14,7 @@ import Messages from './pages/Messages';
 import About from './pages/About';
 import Hero from './pages/Hero';
 import Socials from './pages/Socials';
+import Resume from './pages/Resume';
 
 // Placeholder for remaining pages
 const Placeholder = ({ name }: { name: string }) => (
@@ -43,6 +44,7 @@ export default function AdminRoutes() {
         <Route path="about" element={<About />} />
         <Route path="hero" element={<Hero />} />
         <Route path="socials" element={<Socials />} />
+        <Route path="resume" element={<Resume />} />
         <Route path="media" element={<Placeholder name="Media Library" />} />
         <Route path="settings" element={<Placeholder name="Settings" />} />
       </Route>

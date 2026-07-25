@@ -52,7 +52,7 @@ export default function ProjectDetailSheet({ project, isDark }: ProjectDetailShe
   // Ensure images array is always populated with valid string URLs
   const images: string[] =
     gallery && gallery.length > 0
-      ? gallery
+      ? gallery.map((g: any) => typeof g === 'string' ? g : g.url)
       : thumbnail
       ? [thumbnail]
       : [];

@@ -1,11 +1,15 @@
+// src/types/About.ts
 export interface About {
   _id: string;
   name: string;
   title: string;
   subtitle: string;
   location: string;
+  city: string;
+  country: string;
   email: string;
   phone?: string;
+  whatsapp?: string;
   availability: 'Available' | 'Busy' | 'Not Available';
   avatar?: string;
   coverImage?: string;
@@ -15,5 +19,6 @@ export interface About {
   totalProjects: string;
   technologies: string[];
   resumeUrl?: string;
+  resumePublicId?: string;
   updatedAt: string;
 }

@@ -1,3 +1,11 @@
+// src/types/Project.ts
+export interface ProjectImage {
+  url: string;
+  publicId: string;
+  alt?: string;
+  order: number;
+}
+
 export interface Project {
   _id: string;
   title: string;
@@ -8,7 +16,8 @@ export interface Project {
   status: 'Completed' | 'In Progress' | 'Archived' | 'Draft';
   featured: boolean;
   thumbnail?: string;
-  gallery: string[];
+  thumbnailPublicId?: string;
+  gallery: ProjectImage[];
   videoUrl?: string;
   liveUrl?: string;
   githubUrl?: string;

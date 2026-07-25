@@ -1,6 +1,6 @@
 // src/admin/services/api.service.ts
 import api from '../lib/axios';
-import { ApiResponse, DashboardStats, Project, Blog, Message, About, Hero, Settings, Social, Skill, SkillCategory, Experience, Education, Certificate } from '../types';
+import { ApiResponse, DashboardStats, Project, Blog, Message, About, Hero, Settings, Social, Skill, SkillCategory, Experience, Education, Certificate, Resume } from '../types';
 
 // ── Generic CRUD helpers ──────────────────────────
 const getAll = <T>(endpoint: string, params?: Record<string, unknown>) =>
@@ -151,4 +151,19 @@ export const uploadService = {
   getMediaLibrary: (folder = 'portfolio', next_cursor?: string) =>
     api.get('/upload/media-library', { params: { folder, next_cursor } }).then((r) => r.data),
   getFolders: () => api.get('/upload/folders').then((r) => r.data),
+};
+
+// ── Resume ────────────────────────────────────────
+export const resumeService = {
+  getCurrent: () => api.get<ApiResponse<Resume | null>>('/resume').then((r) => r.data),
+  getAll: () => getAll<Resume>('/resume/all'),
+  upload: (file: File) => {
+    const fd = new FormData();
+    fd.append('resume', file);
+    return api.post<ApiResponse<Resume>>('/resume/upload', fd, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then((r) => r.data);
+  },
+  delete: (id: string) => remove('/resume', id),
+  activate: (id: string) => api.patch<ApiResponse<Resume>>(`/resume/${id}/activate`).then((r) => r.data),
 };

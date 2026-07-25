@@ -170,6 +170,22 @@ export default function Hero() {
               >
                 {ctaSecondary}
               </a>
+              {aboutData?.resumeUrl && (
+                <a
+                  href={`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/resume/download`}
+                  className={cn(
+                    "group inline-flex items-center gap-2 rounded-xl border px-7 py-3.5 text-sm font-semibold transition-all duration-300 hover:-translate-y-0.5",
+                    isDark
+                      ? "border-indigo-500/30 bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20"
+                      : "border-indigo-200 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 hover:shadow-md"
+                  )}
+                >
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  Download CV
+                </a>
+              )}
             </motion.div>
 
             {/* Social Links */}

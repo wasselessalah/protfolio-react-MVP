@@ -11,6 +11,13 @@ export interface User {
   createdAt: string;
 }
 
+export interface ProjectImage {
+  url: string;
+  publicId: string;
+  alt?: string;
+  order: number;
+}
+
 export interface Project {
   _id: string;
   title: string;
@@ -21,7 +28,8 @@ export interface Project {
   status: 'Completed' | 'In Progress' | 'Archived' | 'Draft';
   featured: boolean;
   thumbnail?: string;
-  gallery: string[];
+  thumbnailPublicId?: string;
+  gallery: ProjectImage[];
   videoUrl?: string;
   liveUrl?: string;
   githubUrl?: string;
@@ -147,11 +155,12 @@ export interface Message {
   createdAt: string;
 }
 
+export type SocialPlatform = 'GitHub' | 'LinkedIn' | 'Facebook' | 'Instagram' | 'YouTube';
+
 export interface Social {
   _id: string;
-  platform: string;
+  platform: SocialPlatform;
   url: string;
-  icon: string;
   username: string;
   visible: boolean;
   displayOrder: number;
@@ -163,8 +172,11 @@ export interface About {
   title: string;
   subtitle: string;
   location: string;
+  city: string;
+  country: string;
   email: string;
   phone?: string;
+  whatsapp?: string;
   availability: 'Available' | 'Busy' | 'Not Available';
   avatar?: string;
   coverImage?: string;
@@ -174,6 +186,21 @@ export interface About {
   totalProjects: string;
   technologies: string[];
   resumeUrl?: string;
+  resumePublicId?: string;
+}
+
+export interface Resume {
+  _id: string;
+  filename: string;
+  originalName: string;
+  url: string;
+  publicId: string;
+  size: number;
+  format: string;
+  isActive: boolean;
+  uploadedAt: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Hero {

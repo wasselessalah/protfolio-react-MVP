@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { aboutService } from '../services/api.service';
 import { About } from '../types';
 import toast from 'react-hot-toast';
-import { Save, User, Mail, Phone, MapPin, Briefcase, BookOpen, RefreshCw } from 'lucide-react';
+import { Save, User, Mail, Phone, MapPin, Briefcase, BookOpen, RefreshCw, MessageSquare } from 'lucide-react';
 import TagInput from '../components/ui/TagInput';
 import ImageUpload from '../components/ui/ImageUpload';
 
@@ -160,8 +160,20 @@ export default function AboutPage() {
               <input className="admin-input" type="tel" value={form.phone || ''} onChange={(e) => set('phone', e.target.value)} />
             </div>
             <div>
-              <label className="admin-label"><MapPin size={12} style={{ display: 'inline', marginRight: 4 }} />Location</label>
-              <input className="admin-input" value={form.location || ''} onChange={(e) => set('location', e.target.value)} />
+              <label className="admin-label"><MapPin size={12} style={{ display: 'inline', marginRight: 4 }} />City</label>
+              <input className="admin-input" value={form.city || ''} onChange={(e) => set('city', e.target.value)} />
+            </div>
+            <div>
+              <label className="admin-label"><MapPin size={12} style={{ display: 'inline', marginRight: 4 }} />Country</label>
+              <input className="admin-input" value={form.country || ''} onChange={(e) => set('country', e.target.value)} />
+            </div>
+            <div>
+              <label className="admin-label"><MapPin size={12} style={{ display: 'inline', marginRight: 4 }} />Location (Display)</label>
+              <input className="admin-input" value={form.location || ''} onChange={(e) => set('location', e.target.value)} placeholder="e.g. Sousse, Tunisia" />
+            </div>
+            <div>
+              <label className="admin-label"><MessageSquare size={12} style={{ display: 'inline', marginRight: 4 }} />WhatsApp</label>
+              <input className="admin-input" type="tel" value={form.whatsapp || ''} onChange={(e) => set('whatsapp', e.target.value)} placeholder="+216..." />
             </div>
           </div>
         </div>
@@ -221,9 +233,8 @@ export default function AboutPage() {
                 </select>
               </div>
             </div>
-            <div>
-              <label className="admin-label">Resume URL</label>
-              <input className="admin-input" type="url" value={form.resumeUrl || ''} onChange={(e) => set('resumeUrl', e.target.value)} placeholder="https://..." />
+            <div className="text-xs text-slate-400 p-3 bg-white/5 rounded-lg border border-white/10 mb-4">
+              <strong>Note:</strong> Resume CV management has been moved to its own dedicated section in the sidebar.
             </div>
             <TagInput
               label="Technologies / Tech Stack"

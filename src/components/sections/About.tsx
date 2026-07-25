@@ -161,10 +161,19 @@ export default function About() {
                 <div className="w-14 h-14 rounded-2xl overflow-hidden ring-2 ring-[rgba(59,130,246,0.3)]">
                   <img src={avatar} alt={name} className="w-full h-full object-cover" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <h3 className="text-lg font-800 text-white">{name}</h3>
                   <p className="gradient-text-blue text-sm font-600">{title}</p>
                 </div>
+                {aboutData?.resumeUrl && (
+                  <a
+                    href={`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/resume/download`}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[rgba(59,130,246,0.1)] text-[#3B82F6] hover:bg-[rgba(59,130,246,0.15)] transition-colors text-xs font-700"
+                  >
+                    <FiBook size={12} />
+                    CV
+                  </a>
+                )}
               </div>
               <div className="space-y-3">
                 {description.map((para, i) => (

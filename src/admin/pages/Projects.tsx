@@ -145,19 +145,58 @@ function ProjectForm({ initial, onSave, onCancel, loading }: {
             />
             
             <div>
-              <label className="admin-label">Gallery Images (add URLs for now)</label>
-              <TagInput
-                value={form.gallery || []}
-                onChange={(v) => set('gallery', v)}
-                placeholder="https://... (Press Enter to add)"
-              />
-              <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
-                {(form.gallery || []).map((url, i) => (
-                  <div key={i} style={{ width: 60, height: 40, borderRadius: 4, overflow: 'hidden' }}>
-                    <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <label className="admin-label">Gallery Images</label>
+              {!initial?._id ? (
+                <div className="text-xs text-slate-400 p-3 bg-white/5 rounded-lg border border-white/10 mt-2">
+                  Please save the project first before uploading gallery images.
+                </div>
+              ) : (
+                <div style={{ marginTop: 8 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 12, marginBottom: 12 }}>
+                    {(form.gallery || []).map((img, i) => (
+                      <div key={typeof img === 'string' ? img : (img.publicId || i)} style={{ position: 'relative', aspectRatio: '16/9', borderRadius: 8, overflow: 'hidden', border: '1px solid var(--glass-border)' }}>
+                        <img src={typeof img === 'string' ? img : img.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (confirm('Delete this image?')) {
+                              projectService.deleteImage(initial._id!, typeof img === 'string' ? img : img.publicId).then(() => {
+                                set('gallery', (form.gallery || []).filter(g => (typeof g === 'string' ? g !== img : g.publicId !== (typeof img === 'string' ? img : img.publicId))));
+                                toast.success('Image deleted');
+                              }).catch(() => toast.error('Failed to delete image'));
+                            }
+                          }}
+                          style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(0,0,0,0.6)', color: '#fff', border: 'none', borderRadius: 4, padding: 4, cursor: 'pointer' }}
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                    ))}
+                    <label style={{ aspectRatio: '16/9', borderRadius: 8, border: '2px dashed var(--glass-border)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--admin-text-muted)', fontSize: 12, background: 'rgba(255,255,255,0.02)' }}>
+                      <Plus size={20} />
+                      <span style={{ marginTop: 4 }}>Add Image</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            try {
+                              const res = await projectService.uploadImage(initial._id!, file, 'gallery');
+                              set('gallery', res.project.gallery);
+                              toast.success('Image added to gallery');
+                            } catch (err: any) {
+                              toast.error('Failed to upload image');
+                            }
+                          }
+                          e.target.value = '';
+                        }}
+                      />
+                    </label>
                   </div>
-                ))}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         )}

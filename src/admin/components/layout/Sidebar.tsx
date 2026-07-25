@@ -6,7 +6,7 @@ import {
   LayoutDashboard, User, FolderKanban, Zap, Briefcase,
   GraduationCap, Award, BookOpen, MessageSquare, Share2,
   Image, Settings, LogOut, Sparkles,
-  Home,
+  Home, FileText,
 } from 'lucide-react';
 
 interface NavItem {
@@ -34,6 +34,7 @@ const navGroups: NavGroup[] = [
       { label: 'Hero Section', to: '/admin/hero', icon: <Home size={16} /> },
       { label: 'About', to: '/admin/about', icon: <User size={16} /> },
       { label: 'Projects', to: '/admin/projects', icon: <FolderKanban size={16} /> },
+      { label: 'Resume / CV', to: '/admin/resume', icon: <FileText size={16} /> },
       { label: 'Skills', to: '/admin/skills', icon: <Zap size={16} /> },
       { label: 'Experience', to: '/admin/experience', icon: <Briefcase size={16} /> },
       { label: 'Education', to: '/admin/education', icon: <GraduationCap size={16} /> },
